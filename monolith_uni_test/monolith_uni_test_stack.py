@@ -34,16 +34,16 @@ class MonolithUniTestStack(Stack):
         self.sg = ec2.SecurityGroup(self,
             id="monolith-security-group",
             vpc=self.vpc,
-            allow_all_outbound=False
+            # allow_all_outbound=False
         )
 
         self.sg.add_ingress_rule(peer=ec2.Peer.any_ipv4(), connection=ec2.Port.tcp(80), description='Allow HTTP from anywhere')
         self.sg.add_ingress_rule(peer=ec2.Peer.any_ipv4(), connection=ec2.Port.tcp(443), description='Allow HTTPS from anywhere')
-        self.sg.add_egress_rule(peer=ec2.Peer.security_group_id(self.sg.security_group_id), connection=ec2.Port.tcp(80), description='Allow HTTP to anywhere')
-        self.sg.add_egress_rule(peer=ec2.Peer.security_group_id(self.sg.security_group_id), connection=ec2.Port.tcp(443),description='Allow HTTPS to anywhere')
+        # self.sg.add_egress_rule(peer=ec2.Peer.security_group_id(self.sg.security_group_id), connection=ec2.Port.tcp(80), description='Allow HTTP to anywhere')
+        # self.sg.add_egress_rule(peer=ec2.Peer.security_group_id(self.sg.security_group_id), connection=ec2.Port.tcp(443),description='Allow HTTPS to anywhere')
 
         # creating pem file keypair
-        monolith_key = ec2.CfnKeyPair(self,"MyKeyPair",key_name="monolithKey")
+        # monolith_key = ec2.CfnKeyPair(self,"MyKeyPair",key_name="monolithKey")
 
 
         # monolith ec2 instance 
@@ -51,7 +51,7 @@ class MonolithUniTestStack(Stack):
         instance_type=ec2.InstanceType.of(ec2.InstanceClass.BURSTABLE2,ec2.InstanceSize.NANO),
         machine_image=ec2.MachineImage.generic_linux({
             'us-east-1':'ami-083654bd07b5da81d'}),
-        key_name="monolithKey",
+        key_name="lnd_hobbit_db_key",
         security_group=self.sg,
         vpc_subnets=ec2.SubnetSelection(
             subnet_type=ec2.SubnetType.PUBLIC
@@ -72,7 +72,7 @@ class MonolithUniTestStack(Stack):
             engine=rds.DatabaseInstanceEngine.MYSQL,
             instance_identifier="monolith-db-instance",
             deletion_protection=False,
-            instance_type=ec2.InstanceType.of(ec2.InstanceClass.BURSTABLE2,ec2.InstanceSize.NANO),
+            instance_type=ec2.InstanceType.of(ec2.InstanceClass.BURSTABLE3,ec2.InstanceSize.MICRO),
             security_groups=[self.db_sg],
             allocated_storage=8,
             credentials=rds.Credentials.from_generated_secret('monolithUser'),
@@ -80,5 +80,6 @@ class MonolithUniTestStack(Stack):
             vpc= self.vpc,
             vpc_subnets=ec2.SubnetSelection(
                 subnet_type=ec2.SubnetType.PRIVATE_ISOLATED
-            )
+            ),
+            
         )
