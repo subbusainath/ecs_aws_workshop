@@ -8,6 +8,9 @@ from aws_cdk import (
 )
 from constructs import Construct
 
+with open("/Users/subbusainathrengasamy/Antstack/workshop-test-run/monolith-uni-test/user-data.sh") as f:
+    user_data = f.read()
+
 class MonolithUniTestStack(Stack):
 
     def __init__(self, scope: Construct, construct_id: str, **kwargs) -> None:
@@ -55,7 +58,9 @@ class MonolithUniTestStack(Stack):
         security_group=self.sg,
         vpc_subnets=ec2.SubnetSelection(
             subnet_type=ec2.SubnetType.PUBLIC
-        ) )
+        ),
+        user_data=ec2.UserData.custom(user_data)
+         )
 
         # # security group for db
         self.db_sg = ec2.SecurityGroup(self,
