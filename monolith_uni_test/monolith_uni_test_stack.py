@@ -8,6 +8,9 @@ from aws_cdk import (
 )
 from constructs import Construct
 
+with open("/Users/subbusainathrengasamy/Antstack/workshop-test-run/monolith-uni-test/user-data.sh") as f:
+    user_data = f.read()
+
 class MonolithUniTestStack(Stack):
 
     def __init__(self, scope: Construct, construct_id: str, **kwargs) -> None:
