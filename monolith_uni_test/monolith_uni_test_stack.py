@@ -30,7 +30,7 @@ class MonolithUniTestStack(Stack):
                 name="monolith-subnet-private",
                 subnet_type=ec2.SubnetType.PRIVATE_ISOLATED,
                 cidr_mask=24)
-        ]
+            ]
         )
 
         # public web server security group
@@ -42,6 +42,7 @@ class MonolithUniTestStack(Stack):
 
         self.sg.add_ingress_rule(peer=ec2.Peer.any_ipv4(), connection=ec2.Port.tcp(80), description='Allow HTTP from anywhere')
         self.sg.add_ingress_rule(peer=ec2.Peer.any_ipv4(), connection=ec2.Port.tcp(443), description='Allow HTTPS from anywhere')
+        self.sg.add_ingress_rule(peer=ec2.Peer.any_ipv4(), connection=ec2.Port.tcp(22), description='Allow SSH from anywhere')
         # self.sg.add_egress_rule(peer=ec2.Peer.security_group_id(self.sg.security_group_id), connection=ec2.Port.tcp(80), description='Allow HTTP to anywhere')
         # self.sg.add_egress_rule(peer=ec2.Peer.security_group_id(self.sg.security_group_id), connection=ec2.Port.tcp(443),description='Allow HTTPS to anywhere')
 
@@ -51,16 +52,17 @@ class MonolithUniTestStack(Stack):
 
         # monolith ec2 instance 
         webserver_ec2_instance = ec2.Instance(self,"monolith-webserver-instance",vpc=self.vpc, 
-        instance_type=ec2.InstanceType.of(ec2.InstanceClass.BURSTABLE2,ec2.InstanceSize.NANO),
+        instance_type=ec2.InstanceType.of(ec2.InstanceClass.BURSTABLE3,ec2.InstanceSize.SMALL),
         machine_image=ec2.MachineImage.generic_linux({
             'us-east-1':'ami-083654bd07b5da81d'}),
         key_name="lnd_hobbit_db_key",
         security_group=self.sg,
         vpc_subnets=ec2.SubnetSelection(
             subnet_type=ec2.SubnetType.PUBLIC
-        ),
-        user_data=ec2.UserData.custom(user_data)
-         )
+        ))
+        
+        with open('./lib/post_initialization.sh', 'r', encoding='utf-8') as file:
+            webserver_ec2_instance.add_user_data(file.read())
 
         # # security group for db
         self.db_sg = ec2.SecurityGroup(self,
@@ -86,5 +88,4 @@ class MonolithUniTestStack(Stack):
             vpc_subnets=ec2.SubnetSelection(
                 subnet_type=ec2.SubnetType.PRIVATE_ISOLATED
             ),
-            
         )
