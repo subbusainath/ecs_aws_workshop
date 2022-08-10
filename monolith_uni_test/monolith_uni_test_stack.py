@@ -44,7 +44,7 @@ class MonolithUniTestStack(Stack):
         self.sg.add_ingress_rule(peer=ec2.Peer.any_ipv4(), connection=ec2.Port.tcp(80), description='Allow HTTP from anywhere')
         self.sg.add_ingress_rule(peer=ec2.Peer.any_ipv4(), connection=ec2.Port.tcp(443), description='Allow HTTPS from anywhere')
         self.sg.add_ingress_rule(peer=ec2.Peer.any_ipv4(), connection=ec2.Port.tcp(22), description='Allow SSH from anywhere')
-
+        self.sg.add_ingress_rule(peer=ec2.Peer.any_ipv4(), connection=ec2.Port.tcp(8080), description='Allow HTTP from anywhere')
 
         # monolith ec2 instance 
         webserver_ec2_instance = ec2.Instance(self,"monolith-webserver-instance",vpc=self.vpc, 
